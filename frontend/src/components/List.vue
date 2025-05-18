@@ -4,8 +4,10 @@
     <input type="text" v-model="search" placeholder="搜尋影片..." />
 
     <select v-model="sortOrder">
-      <option value="asc">檔名升序</option>
-      <option value="desc">檔名降序</option>
+      <option value="filename_asc">檔名升序</option>
+      <option value="filename_desc">檔名降序</option>
+      <option value="add_time_asc">加入時間升序</option>  
+      <option value="add_time_desc">加入時間降序</option> 
     </select>
 
     <select v-model.number="itemsPerPage">
@@ -23,6 +25,7 @@
             <strong>{{ video.filename }}</strong>
             <div>標籤：{{ Array.isArray(video.tag) ? video.tag.join('、') : '' }}</div>
             <div>描述：{{ video.description || '（無）' }}</div>
+            <div>加入時間：{{ video.add_time || '未知' }}</div>
             <button @click="editVideo(video)">編輯</button>
             <button @click="deleteVideo(video)">刪除</button>
           </div>
@@ -58,7 +61,7 @@ const apiBase = "http://127.0.0.1:5000";
 const router = useRouter();
 const route = useRoute();
 
-const sortOrder = ref('asc');
+const sortOrder = ref('add_time_desc');
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const restoringState = ref(false);
@@ -71,7 +74,7 @@ onMounted(async () => {
   restoringState.value = true;
 
   search.value = route.query.search || "";
-  sortOrder.value = route.query.sort || "asc";
+  sortOrder.value = route.query.sort || "add_time_desc";
   currentPage.value = parseInt(route.query.page || "1");
   itemsPerPage.value = parseInt(route.query.items || "10");
   
@@ -171,14 +174,26 @@ const filteredVideos = computed(() => {
         );
     });
 
-    list.sort((a, b) => {
-        const nameA = (a.filename || "").toLowerCase();
-        const nameB = (b.filename || "").toLowerCase();
-        if (sortOrder.value === 'asc') {
-            return nameA.localeCompare(nameB);
-        } else {
-            return nameB.localeCompare(nameA);
-        }
+    list.sort((a, b) => {  
+      if (sortOrder.value.startsWith('filename_')) {  
+          const nameA = (a.filename || "").toLowerCase();  
+          const nameB = (b.filename || "").toLowerCase();  
+          if (sortOrder.value === 'filename_asc') {  
+              return nameA.localeCompare(nameB);  
+          } else {  
+              return nameB.localeCompare(nameA);  
+          }  
+      } else if (sortOrder.value.startsWith('add_time_')) {  
+          // 如果沒有 add_time 屬性，則視為最舊的  
+          const timeA = a.add_time || "1970/01/01 00:00:00";  
+          const timeB = b.add_time || "1970/01/01 00:00:00";  
+          if (sortOrder.value === 'add_time_asc') {  
+              return timeA.localeCompare(timeB);  
+          } else {  
+              return timeB.localeCompare(timeA);  
+          }  
+      }  
+      return 0;  
     });
 
     return list;

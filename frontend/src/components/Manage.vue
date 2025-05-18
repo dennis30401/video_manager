@@ -14,6 +14,7 @@
               <div>描述：{{ element.description || '（無）' }}</div>
               <div>時長：{{ element.duration || '未知' }}</div>
               <div>大小：{{ element.size || '未知' }}</div>
+              <div>加入時間：{{ element.add_time || '未知' }}</div>
               <button @click="editVideo(index)">編輯</button>
               <button @click="deleteVideo(index)">刪除</button>
               <input type="file" @change="uploadThumbnail(index, $event)" accept="image/*" />

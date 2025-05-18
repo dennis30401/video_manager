@@ -64,7 +64,6 @@ function handleKeydown(event) {
   }
 }
 
-
 onMounted(() => {
   const savedTime = localStorage.getItem("playback_" + path);
   window.addEventListener('keydown', handleKeydown);

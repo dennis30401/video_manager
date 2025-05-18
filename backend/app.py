@@ -6,6 +6,7 @@ from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 import mimetypes
 import subprocess
+import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -109,6 +110,7 @@ def scan_videos():
                 if full_path not in existing_files:
                     name, _ = os.path.splitext(file)
                     thumb = generate_thumbnail(full_path)
+                    current_time = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
                     videos.append({
                         "filename": file,
                         "tag": [],
@@ -116,7 +118,8 @@ def scan_videos():
                         "description": "",
                         "duration": get_video_duration(full_path),
                         "thumbnail": thumb,
-                        "size": get_readable_size(os.path.getsize(full_path))
+                        "size": get_readable_size(os.path.getsize(full_path)),
+                        "add_time": current_time  # 添加掃描時間  
                     })
                     new_files.append(full_path)
 
